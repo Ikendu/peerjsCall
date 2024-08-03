@@ -27,21 +27,16 @@ function App() {
         navigator.webkitGetUserMedia ||
         navigator.mozGetUserMedia;
 
-      getUserMedia(
-        { video: true, audio: true },
-        function (stream) {
-          call.answer(stream); // Answer the call with an A/V stream.
-
-          call.on("stream", function (remoteStream) {
-            // Show stream in some video/canvas element.
-            currentUserVideoRef.current.srcObject = currentUserVideoRef;
-            currentUserVideoRef.current.play;
-          });
-        },
-        function (err) {
-          console.log("Failed to get local stream", err);
-        }
-      );
+      getUserMedia({ video: true, audio: true }, function (stream) {
+        currentUserVideoRef.current.srcObject = stream;
+        currentUserVideoRef.current.play();
+        call.answer(stream); // Answer the call with an A/V stream.
+        call.on("stream", function (remoteStream) {
+          // Show stream in some video/canvas element.
+          remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.play();
+        });
+      });
     });
 
     peerInstance.current = peer;
@@ -53,20 +48,17 @@ function App() {
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||
       navigator.mozGetUserMedia;
-    getUserMedia(
-      { video: true, audio: true },
-      function (mediaStream) {
-        var call = peerInstance.current.call(remotePeerId, mediaStream);
-        call.on("stream", function (remoteStream) {
-          // Show stream in some video/canvas element.
-          remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.play();
-        });
-      }
-      // function (err) {
-      //   console.log("Failed to get local stream", err);
-      // }
-    );
+    getUserMedia({ video: true, audio: true }, (mediaStream) => {
+      currentUserVideoRef.current.srcObject = mediaStream;
+      currentUserVideoRef.current.play();
+
+      const call = peerInstance.current.call(remotePeerId, mediaStream);
+      call.on("stream", (remoteStream) => {
+        // Show stream in some video/canvas element.
+        remoteVideoRef.current.srcObject = remoteStream;
+        remoteVideoRef.current.play();
+      });
+    });
   };
 
   return (
@@ -78,7 +70,10 @@ function App() {
         value={remoteIdValue}
         onChange={(e) => setRemoteIdValue(e.target.value)}
       />
-      <button onClick={call(remoteIdValue)} className=" bg-blue-700 p-3 px-6">
+      <button
+        onClick={() => call(remoteIdValue)}
+        className=" bg-blue-700 p-3 px-6"
+      >
         Call
       </button>
 
@@ -87,7 +82,7 @@ function App() {
 
       <button className=" bg-green-600 p-3 px-6">Answer</button>
       <div>
-        <video />
+        <video ref={currentUserVideoRef} />
       </div>
       <div>
         <video ref={remoteVideoRef} />
