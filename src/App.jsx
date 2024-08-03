@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
+
 import "./App.css";
 import Peer from "peerjs";
 
 function App() {
-  const [peerId, setPeerId] = useState(null);
+  const [peerId, setPeerId] = useState(``);
+  const [remoteIdValue, setRemoteIdValue] = useState(``);
+
   const remoteVideoRef = useRef(null);
+  const currentUserVideoRef = useRef(null);
+  const peerInstance = useRef(null);
 
   //useEffect works like componentDidMount
   useEffect(() => {
@@ -31,6 +34,8 @@ function App() {
 
           call.on("stream", function (remoteStream) {
             // Show stream in some video/canvas element.
+            currentUserVideoRef.current.srcObject = currentUserVideoRef;
+            currentUserVideoRef.current.play;
           });
         },
         function (err) {
@@ -38,6 +43,8 @@ function App() {
         }
       );
     });
+
+    peerInstance.current = peer;
   }, []);
 
   // for making calls
@@ -49,10 +56,11 @@ function App() {
     getUserMedia(
       { video: true, audio: true },
       function (mediaStream) {
-        var call = peer.call(remotePeerId, mediaStream);
+        var call = peerInstance.current.call(remotePeerId, mediaStream);
         call.on("stream", function (remoteStream) {
           // Show stream in some video/canvas element.
           remoteVideoRef.current.srcObject = remoteStream;
+          remoteVideoRef.current.play();
         });
       }
       // function (err) {
@@ -62,9 +70,22 @@ function App() {
   };
 
   return (
-    <div>
+    <div className="">
       <h3>My Id is {peerId}</h3>
-      <div>Peer Connections</div>
+      <div className=" bg-slate-500">Peer Connections</div>
+      <input
+        type="text"
+        value={remoteIdValue}
+        onChange={(e) => setRemoteIdValue(e.target.value)}
+      />
+      <button onClick={call(remoteIdValue)} className=" bg-blue-700 p-3 px-6">
+        Call
+      </button>
+
+      <button className=" bg-green-600 p-3 px-6">Answer</button>
+      <button className=" bg-blue-700 p-3 px-6">Reject</button>
+
+      <button className=" bg-green-600 p-3 px-6">Answer</button>
       <div>
         <video />
       </div>
