@@ -124,10 +124,10 @@ function CallApp() {
         <p className="italic text-blue-800 font-bold">
           You have to recharge and get recievers ID before proceeding with
           calls. <br />
-          Thank you{" "}
+          Thank you.
         </p>
         <div className="m-5">
-          <label>Enter any amount to Recharge before Call</label>
+          <label>Enter any amount to Recharge before Call.</label>
           <input
             type="number"
             placeholder="Enter Amount here"
