@@ -12,9 +12,9 @@ function App() {
       <div>
         <CallApp />
       </div>
-      <div>
+      {/* <div>
         <Firebase />
-      </div>
+      </div> */}
     </div>
   );
 }
