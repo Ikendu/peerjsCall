@@ -163,7 +163,7 @@ function CallApp() {
                 stopInterval
               )
             }
-            className=" bg-blue-700 p-3 px-6"
+            className=" bg-blue-700 p-3 px-6 text-white"
           >
             Call
           </button>
@@ -173,7 +173,10 @@ function CallApp() {
             Answer
           </button> */}
           {` `}
-          <button onClick={handleEndCall} className="bg-red-700 p-3 px-6">
+          <button
+            onClick={handleEndCall}
+            className="bg-red-700 p-3 px-6 text-white"
+          >
             End Call
           </button>
         </div>
