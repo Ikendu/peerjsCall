@@ -21,17 +21,24 @@ function CallApp() {
   const peerInstance = useRef(null);
 
   //useEffect works like componentDidMount
+
   useEffect(() => {
-    let peer = new Peer(); // the first call to RTC connection using peerjs
+    const userInput = prompt(`Enter Username`);
+    setUserName(userInput);
+
+    if (userInput) {
+      let peer = new Peer(userInput);
+      peer.on(`open`, (id) => {
+        setPeerId(id);
+      });
+      answerCall(peer, currentUserVideoRef, remoteVideoRef);
+
+      peerInstance.current = peer;
+    }
+    // the first call to RTC connection using peerjs
     // console.log(`PEER`, peer);
-    peer.on(`open`, (id) => {
-      setPeerId(id);
-    });
 
     //Answer the call
-    answerCall(peer, currentUserVideoRef, remoteVideoRef);
-
-    peerInstance.current = peer;
   }, []);
 
   const deductFromCaller = () => {
@@ -64,7 +71,7 @@ function CallApp() {
     }
   };
 
-  const handleEndCall = () => {
+  const handleEndCall = async () => {
     if (remoteIdValue) {
       const postDataRef = ref(database, `amountGain`);
       const newPostRef = push(postDataRef);
@@ -84,6 +91,15 @@ function CallApp() {
     } else {
       console.log(`Call ended`);
       handleGetData();
+      let stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: true,
+      });
+      const tracks = stream.getTracks();
+      tracks.forEach((track, idx) => {
+        console.log(track, idx);
+        track.stop();
+      });
       //   window.location.reload();
     }
   };
@@ -145,10 +161,13 @@ function CallApp() {
         />
 
         {remoteIdValue ? (
-          <p>Caller Ballance: {amount}</p>
+          <div>
+            <p>Caller Ballance: </p>
+          </div>
         ) : (
           <div>
             <p>Agent Balance: {agent}</p>
+            <input readOnly value={amount} className="py-2" />
             {/* <p className=" text-xs">End call to see your balance</p> */}
           </div>
         )}
