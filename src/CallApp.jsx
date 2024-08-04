@@ -23,7 +23,7 @@ function CallApp() {
   //useEffect works like componentDidMount
 
   useEffect(() => {
-    const userInput = prompt(`Enter Username`);
+    const userInput = prompt(`Enter Short name for ID`);
     setUserName(userInput);
 
     if (userInput) {
@@ -133,7 +133,8 @@ function CallApp() {
   return (
     <div className="w-[100%] flex content-center justify-center ">
       <div className="w-[600px] bg-slate-200 text-center ">
-        <h3 className="font-bold m-5">My Id is {peerId}</h3>
+        <h3 className="font-bold m-5">My Id: {peerId}</h3>
+        <p>share your ID with friends to connect and chat with them </p>
         <div className=" bg-slate-500 text-white p-3">Peer Connections</div>
         <p className="text-blue-800 font-bold">Note:</p>
 
@@ -175,7 +176,7 @@ function CallApp() {
         <input
           type="text"
           value={remoteIdValue}
-          placeholder="Enter remote id to call"
+          placeholder="Enter your friends ID to connect with them"
           onChange={(e) => setRemoteIdValue(e.target.value)}
           className="w-[80%] p-2 rounded-lg m-5"
         />
