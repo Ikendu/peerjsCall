@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import database from "./configuration"; // Assuming the correct path to your configuration file
-import { getDatabase, ref, onValue } from "firebase/database";
+import { ref, onValue } from "firebase/database";
 
 // App.js
 

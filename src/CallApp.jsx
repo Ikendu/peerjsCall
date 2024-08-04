@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import "./App.css";
 import Peer from "peerjs";
-import { push, ref, set } from "firebase/database";
+import { child, get, onValue, push, ref, set } from "firebase/database";
 import database from "./configuration";
 import makeCalls from "./resourse/makeCalls";
 import answerCall from "./resourse/answerCall";
@@ -13,6 +13,7 @@ function CallApp() {
   const [amount, setAmount] = useState(0);
   const [gain, setGain] = useState(0);
   const [userName, setUserName] = useState(``);
+  const [data, setData] = useState({});
 
   const currentUserVideoRef = useRef(null); // to hold current video stream
   const remoteVideoRef = useRef(null); // to hold remote video stream
@@ -63,16 +64,53 @@ function CallApp() {
   };
 
   const handleEndCall = () => {
-    console.log(gain);
-    saveData();
-    window.location.reload();
+    if (remoteIdValue) {
+      const postDataRef = ref(database, `amountGain`);
+      const newPostRef = push(postDataRef);
+      set(newPostRef, {
+        userName,
+        gain,
+        remoteIdValue,
+        timestamp: Date.now(),
+      })
+        .then(() => {
+          console.log(`Data posted successfully`);
+          window.location.reload();
+        })
+        .catch((e) => {
+          console.error(`Error posting data`, e);
+        });
+    } else {
+      console.log(`Call ended`);
+      handleGetData(remoteIdValue);
+      //   window.location.reload();
+    }
+  };
+
+  // get the gained amount from database
+  const handleGetData = (id) => {
+    const dataRef = ref(database, `amountGain/${id}`);
+
+    // Use child to navigate to the specific ID
+    get(dataRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          setData(snapshot.val());
+          console.log("Data retrieved successfully:", snapshot.val());
+        } else {
+          console.log("No data available for this ID.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error retrieving data:", error);
+      });
   };
 
   return (
     <div className="w-[100%] flex content-center justify-center ">
       <div className="w-[600px] bg-slate-200 text-center ">
         <h3 className="font-bold m-5">My Id is {peerId}</h3>
-        <div className=" bg-slate-500">Peer Connections</div>
+        <div className=" bg-slate-500 text-white p-3">Peer Connections</div>
         <div className="m-5">
           <label>Enter amount to Recharge your connection</label>
           <input
