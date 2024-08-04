@@ -23,7 +23,7 @@ function CallApp() {
   //useEffect works like componentDidMount
   useEffect(() => {
     let peer = new Peer(); // the first call to RTC connection using peerjs
-    console.log(`PEER`, peer);
+    // console.log(`PEER`, peer);
     peer.on(`open`, (id) => {
       setPeerId(id);
     });
@@ -83,15 +83,14 @@ function CallApp() {
         });
     } else {
       console.log(`Call ended`);
-      handleGetData(remoteIdValue);
+      handleGetData();
       //   window.location.reload();
     }
   };
 
   // get the gained amount from database
-  const handleGetData = (id) => {
+  const handleGetData = () => {
     const dataRef = ref(database, `amountGain`);
-
     // Use child to navigate to the specific ID
     get(dataRef)
       .then((snapshot) => {
@@ -107,7 +106,8 @@ function CallApp() {
       });
   };
 
-  console.log(`DATA`, Object.values(data)[Object.keys(data).length - 1]);
+  //   console.log(`DATA`, Object.values(data)[Object.keys(data).length - 1]);
+
   useEffect(() => {
     const gains = Object.values(data)[Object.keys(data).length - 1];
     console.log(gains?.gain);
@@ -119,8 +119,15 @@ function CallApp() {
       <div className="w-[600px] bg-slate-200 text-center ">
         <h3 className="font-bold m-5">My Id is {peerId}</h3>
         <div className=" bg-slate-500 text-white p-3">Peer Connections</div>
+        <p className="text-blue-800 font-bold">Note:</p>
+
+        <p className="italic text-blue-800 font-bold">
+          You have to recharge and get recievers ID before proceeding with
+          calls. <br />
+          Thank you{" "}
+        </p>
         <div className="m-5">
-          <label>Enter amount to Recharge your connection</label>
+          <label>Enter any amount to Recharge before Call</label>
           <input
             type="number"
             placeholder="Enter Amount here"
@@ -137,8 +144,14 @@ function CallApp() {
           className="w-[80%] p-2 rounded-lg m-5"
         />
 
-        <p>Caller Ballance: {amount}</p>
-        <p>Agent Balance: {agent}</p>
+        {remoteIdValue ? (
+          <p>Caller Ballance: {amount}</p>
+        ) : (
+          <div>
+            <p>Agent Balance: {agent}</p>
+            {/* <p className=" text-xs">End call to see your balance</p> */}
+          </div>
+        )}
 
         <input
           type="text"

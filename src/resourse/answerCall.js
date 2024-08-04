@@ -15,4 +15,5 @@ export default function (peer, currentUserVideoRef, remoteVideoRef) {
       });
     });
   });
+  // return true;
 }

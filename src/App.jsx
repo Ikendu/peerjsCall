@@ -8,7 +8,7 @@ import Firebase from "./Firebase";
 function App() {
   return (
     <div className="">
-      <h1 className="text-center">My Test Project</h1>
+      <h1 className="text-center text-xl">My Test Project</h1>
       <div>
         <CallApp />
       </div>
