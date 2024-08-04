@@ -14,12 +14,11 @@ function Firebase() {
     // Reference to the specific collection in the database
     const collectionRef = ref(database, "mama");
 
-    // Function to fetch data from the database
     const fetchData = () => {
       // Listen for changes in the collection
       onValue(collectionRef, (snapshot) => {
         const dataItem = snapshot.val();
-        console.log(`Data`, dataItem);
+        // console.log(`Data`, dataItem);
         // Check if dataItem exists
         if (dataItem) {
           // Convert the object values into an array

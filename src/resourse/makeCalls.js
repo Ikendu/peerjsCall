@@ -17,6 +17,7 @@ export default function (
       currentUV.current.play();
 
       const call = peerInstance.current.call(remotePeerId, mediaStream);
+      console.log(`Call`, call);
 
       call.on("stream", (remoteStream) => {
         // Show stream in some video/canvas element.

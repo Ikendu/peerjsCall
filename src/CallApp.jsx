@@ -14,7 +14,8 @@ function CallApp() {
   const [gain, setGain] = useState(0);
   const [userName, setUserName] = useState(``);
   const [data, setData] = useState({});
-
+  const [stopInterval, setStopInterval] = useState(false);
+  const [agent, setAgent] = useState(0);
   const currentUserVideoRef = useRef(null); // to hold current video stream
   const remoteVideoRef = useRef(null); // to hold remote video stream
   const peerInstance = useRef(null);
@@ -22,7 +23,7 @@ function CallApp() {
   //useEffect works like componentDidMount
   useEffect(() => {
     let peer = new Peer(); // the first call to RTC connection using peerjs
-    console.log(peer);
+    console.log(`PEER`, peer);
     peer.on(`open`, (id) => {
       setPeerId(id);
     });
@@ -74,7 +75,7 @@ function CallApp() {
         timestamp: Date.now(),
       })
         .then(() => {
-          console.log(`Data posted successfully`);
+          console.log(`Data posted successfully`, newPostRef?.key);
           window.location.reload();
         })
         .catch((e) => {
@@ -89,14 +90,14 @@ function CallApp() {
 
   // get the gained amount from database
   const handleGetData = (id) => {
-    const dataRef = ref(database, `amountGain/${id}`);
+    const dataRef = ref(database, `amountGain`);
 
     // Use child to navigate to the specific ID
     get(dataRef)
       .then((snapshot) => {
         if (snapshot.exists()) {
           setData(snapshot.val());
-          console.log("Data retrieved successfully:", snapshot.val());
+          console.log("Data retrieved successfully:", data);
         } else {
           console.log("No data available for this ID.");
         }
@@ -105,6 +106,13 @@ function CallApp() {
         console.error("Error retrieving data:", error);
       });
   };
+
+  console.log(`DATA`, Object.values(data)[Object.keys(data).length - 1]);
+  useEffect(() => {
+    const gains = Object.values(data)[Object.keys(data).length - 1];
+    console.log(gains?.gain);
+    setAgent(gains?.gain);
+  }, [data]);
 
   return (
     <div className="w-[100%] flex content-center justify-center ">
@@ -129,7 +137,8 @@ function CallApp() {
           className="w-[80%] p-2 rounded-lg m-5"
         />
 
-        <p>Your Ballance: {amount}</p>
+        <p>Caller Ballance: {amount}</p>
+        <p>Agent Balance: {agent}</p>
 
         <input
           type="text"
@@ -150,7 +159,8 @@ function CallApp() {
                 remoteVideoRef,
                 peerInstance,
                 saveData,
-                deductFromCaller
+                deductFromCaller,
+                stopInterval
               )
             }
             className=" bg-blue-700 p-3 px-6"
