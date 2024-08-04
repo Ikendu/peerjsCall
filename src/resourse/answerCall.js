@@ -1,5 +1,5 @@
 export default function (peer, currentUserVideoRef, remoteVideoRef) {
-  peer.on("call", function (call) {
+  peer.current.on("call", function (call) {
     let getUserMedia =
       navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||

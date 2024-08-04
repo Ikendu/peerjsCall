@@ -8,6 +8,12 @@ import makeCalls from "./resourse/makeCalls";
 import answerCall from "./resourse/answerCall";
 
 function CallApp() {
+  const [peer, setPeer] = useState(``);
+  const [incomingCall, setIncomingCall] = useState(``);
+  const [localStream, setLocalStream] = useState(``);
+  const currentUserVideoRef = useRef(null); // to hold current video stream
+  const remoteVideoRef = useRef(null); //  to hold remote video stream
+
   const [peerId, setPeerId] = useState(``); // to store the user Id
   const [remoteIdValue, setRemoteIdValue] = useState(``); // to store the remote id
   const [amount, setAmount] = useState(0);
@@ -16,8 +22,7 @@ function CallApp() {
   const [data, setData] = useState({});
   const [stopInterval, setStopInterval] = useState(false);
   const [agent, setAgent] = useState(0);
-  const currentUserVideoRef = useRef(null); // to hold current video stream
-  const remoteVideoRef = useRef(null); // to hold remote video stream
+
   const peerInstance = useRef(null);
 
   //useEffect works like componentDidMount
@@ -27,19 +32,43 @@ function CallApp() {
     setUserName(userInput);
 
     if (userInput) {
-      let peer = new Peer(userInput);
-      peer.on(`open`, (id) => {
-        setPeerId(id);
+      let newPeer = new Peer(userInput);
+
+      setPeer(newPeer);
+
+      newPeer.on(`open`, (call) => {
+        setPeerId(call);
+        setIncomingCall(call);
       });
-      answerCall(peer, currentUserVideoRef, remoteVideoRef);
 
-      peerInstance.current = peer;
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((stream) => {
+          setLocalStream(stream);
+          currentUserVideoRef.current.srcObject = stream;
+        })
+        .catch((e) => console.log(`Failed to load`, e));
+
+      peerInstance.current = newPeer;
+
+      // return () => {
+      //   if (peer) peer.destry();
+      // };
+
+      answerCall(peerInstance, currentUserVideoRef, remoteVideoRef);
     }
-    // the first call to RTC connection using peerjs
-    // console.log(`PEER`, peer);
-
-    //Answer the call
   }, []);
+
+  const handleAcceptCall = () => {
+    if (incomingCall && localStream) {
+      incomingCall.answer(localStream);
+      incomingCall.on(`stream`, (remoteStream) => {
+        remoteVideoRef.current.srcObject = remoteStream;
+      });
+
+      setIncomingCall(null);
+    }
+  };
 
   const deductFromCaller = () => {
     const timerId = setInterval(() => {
@@ -61,9 +90,6 @@ function CallApp() {
       })
         .then(() => {
           console.log(`Data posted successfully`);
-          //   setUserName(``);
-          //   setAmount(``);
-          //   setRemoteId(``);
         })
         .catch((e) => {
           console.error(`Error posting data`, e);
@@ -91,15 +117,7 @@ function CallApp() {
     } else {
       console.log(`Call ended`);
       handleGetData();
-      let stream = await navigator.mediaDevices.getUserMedia({
-        audio: true,
-        video: true,
-      });
-      const tracks = stream.getTracks();
-      tracks.forEach((track, idx) => {
-        console.log(track, idx);
-        track.stop();
-      });
+
       //   window.location.reload();
     }
   };
@@ -112,7 +130,7 @@ function CallApp() {
       .then((snapshot) => {
         if (snapshot.exists()) {
           setData(snapshot.val());
-          console.log("Data retrieved successfully:", data);
+          console.log("Data retrieved successfully:", snapshot.val());
         } else {
           console.log("No data available for this ID.");
         }
@@ -202,9 +220,9 @@ function CallApp() {
           </button>
           {` `}
 
-          {/* <button onClick={handleAnswerCall} className=" bg-green-600 p-3 px-6">
+          <button onClick={handleAcceptCall} className=" bg-green-600 p-3 px-6">
             Answer
-          </button> */}
+          </button>
           {` `}
           <button
             onClick={handleEndCall}
@@ -215,11 +233,11 @@ function CallApp() {
         </div>
         <div>
           <p className="font-bold mt-10">My Cam</p>
-          <video ref={currentUserVideoRef} />
+          <video ref={currentUserVideoRef} autoPlay />
         </div>
         <div>
           <p className="font-bold mt-10">Remote Cam</p>
-          <video ref={remoteVideoRef} />
+          <video ref={remoteVideoRef} autoPlay />
         </div>
       </div>
     </div>
